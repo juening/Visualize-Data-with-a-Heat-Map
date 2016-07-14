@@ -20,6 +20,9 @@ d3.json(dataUrl, function(error, data){
         var baseTemp = data.baseTemperature;
         
         var temps = dataset.map(function(item){return baseTemp + item.variance;});
+        var lowTemp = d3.min(temps);
+        var highTemp = d3.max(temps);
+        var colorScale = d3.scale.quantile().domain([lowTemp, highTemp]).range(colors);
         
         console.log(temps);
         
@@ -39,7 +42,7 @@ d3.json(dataUrl, function(error, data){
         var minDate = new Date(minYear, 0);
         var maxDate = new Date(maxYear, 0);
 
-        var xScale = d3.time.scale().domain([minDate, maxDate]).range([0, w]);
+        var xScale = d3.time.scale().domain([minDate, maxDate]).range([0, width]);
         
         var xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(15);
         
@@ -54,7 +57,11 @@ d3.json(dataUrl, function(error, data){
         var bars = svg.selectAll("rect").data(dataset).enter().append("rect")
                       .attr("x", function(d, i){ return  gridWidth * Math.floor(i / monthsArr.length);})
                       .attr("y", function(d, i){ return gridHeight * (i % monthsArr.length);})
-                      .attr("width", gridWidth).attr("height", gridHeight).attr("fill", "blue");
+                      .attr("width", gridWidth)
+                      .attr("height", gridHeight)
+                      .attr("fill", function(d){
+                          return colorScale(baseTemp + d.variance);
+                      });
         
     }
 })
