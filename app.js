@@ -1,16 +1,21 @@
 var dataUrl = "https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/global-temperature.json";
 
-var h = 660, w = 1000;
+var h = 660;
+var w = 1000;
 
 var monthsArr = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 var colors = ["#5e4fa2", "#3288bd", "#66c2a5", "#abdda4", "#e6f598", "#ffffbf", "#fee08b", "#fdae61", "#f46d43", "#d53e4f", "#9e0142"];
 
-var marginLeft = 50, marginRight = 20, marginTop = 20, marginBottom = 40;
+var marginLeft = 80, marginRight = 20, marginTop = 20, marginBottom = 40;
 
 var height = h - marginBottom - marginTop;
 
-var width = h - marginLeft - marginRight;
+var width = w - marginLeft - marginRight;
+
+var toolTip = function(obj){
+    return " " + obj.year + " " + monthsArr[obj.month-1] + " " + " " + obj.variance;
+}
 
 d3.json(dataUrl, function(error, data){
     if(error){
@@ -29,7 +34,7 @@ d3.json(dataUrl, function(error, data){
         var svg = d3.select("body").append("svg").attr("width", w).attr("height", h).append("g")
                     .attr("transform", "translate(" + marginLeft + "," + marginTop + ")");;
         
-        var yScale = d3.scale.ordinal().domain(d3.range(monthsArr.length)).rangeRoundBands([0, height]);
+        var yScale = d3.scale.ordinal().domain(monthsArr).rangeRoundBands([0, height]);
         
         var years = dataset.map(function(item){return item.year;});
         years = years.filter(function(item, index){ return years.indexOf(item) === index; });
@@ -61,7 +66,8 @@ d3.json(dataUrl, function(error, data){
                       .attr("height", gridHeight)
                       .attr("fill", function(d){
                           return colorScale(baseTemp + d.variance);
-                      });
+                      }).append("title").text(function(d){return toolTip(d);})
+                      .on("mouseover", function(){});
         
     }
 })
